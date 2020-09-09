@@ -40,10 +40,10 @@ $totalValue = 0;
 // ================ //
 // MATTIAS PHP CODE //
 // ================ //
-whatIsHappening();
+//whatIsHappening();
 
 
-// SET EMPTY VARIABLES VALUES
+// SET GLOBALS
 $alert = 'd-none';
 $errors = '';
 $form_email = '';
@@ -57,67 +57,63 @@ $form_placeholder_number = '';
 $form_placeholder_city = '';
 $form_placeholder_zip = '';
 
+// SET LAST SUBMITTED POST VALUES
+$form_email = getPost('email');
+$form_street = getPost('street');
+$form_number = getPost('number');
+$form_city = getPost('city');
+$form_zip = getPost('zip');
 
-// GET LAST SUBMITTED VALUES
-if (isset($_POST['email'])) {
-  $form_email = $_POST['email'];
-}
-if (isset($_POST['street'])) {
-  $form_street = $_POST['street'];
-}
-if (isset($_POST['number'])) {
-  $form_number = $_POST['number'];
-}
-if (isset($_POST['city'])) {
-  $form_city = $_POST['city'];
-}
-if (isset($_POST['zip'])) {
-  $form_zip = $_POST['zip'];
-}
+// SET LAST VALIDATED COOKIE VALUES
+$form_placeholder_email = getCookie('email');
+$form_placeholder_street = getCookie('street');
+$form_placeholder_number = getCookie('number');
+$form_placeholder_city = getCookie('city');
+$form_placeholder_zip = getCookie('zip');
 
-// GET LAST VALIDATED VALUES COOKIE
-if (isset($_COOKIE['email'])) {
-  $form_placeholder_email = $_COOKIE['email'];
-}
-if (isset($_COOKIE['street'])) {
-  $form_placeholder_street = $_COOKIE['street'];
-}
-if (isset($_COOKIE['number'])) {
-  $form_placeholder_number = $_COOKIE['number'];
-}
-if (isset($_COOKIE['city'])) {
-  $form_placeholder_city = $_COOKIE['city'];
-}
-if (isset($_COOKIE['zip'])) {
-  $form_placeholder_zip = $_COOKIE['zip'];
-}
 
 // VALIDATE FORM DATA, SET COOKIES
 if ($_POST) {
-  valForm();
-}
-
-
-// FUNCTIONS
-function valForm()
-{
-  $val_email = valEmail();
-  $val_street = valStreet();
-  $val_number = valNumber();
-  $val_city = valCity();
-  $val_zip = valZip();
-
-  // GENERATE ALERTS
-  $errors = $val_email . $val_street . $val_number . $val_city . $val_zip;
+  $errors = valForm();
   // HIDE ALERTS DIV WHEN NO ALERTS
   ($errors === '') ? $alert = 'd-none' : $alert = '';
 }
 
-function valEmail()
-{
-  // get input
-  $email = $_POST['email'];
 
+
+// FUNCTIONS
+function getPost($type)
+{
+  if (isset($_POST[$type])) {
+    return $_POST[$type];
+  } else {
+    return '';
+  }
+}
+
+function getCookie($type)
+{
+  if (isset($_COOKIE[$type])) {
+    return $_COOKIE[$type];
+  } else {
+    return '';
+  }
+}
+
+function valForm()
+{
+  $val_email = valEmail($_POST['email']);
+  $val_street = valStreet($_POST['street']);
+  $val_number = valNumber($_POST['number']);
+  $val_city = valCity($_POST['city']);
+  $val_zip = valZip($_POST['zip']);
+
+  // GENERATE ALERTS
+  return $val_email . $val_street . $val_number . $val_city . $val_zip;
+}
+
+function valEmail($email)
+{
   // validate input
   if (empty($email)) {
     return "Please enter an <b>email address</b><br/>";
@@ -132,11 +128,8 @@ function valEmail()
   }
 }
 
-function valStreet()
+function valStreet($street)
 {
-  // get input
-  $street = $_POST['street'];
-
   // validate input
   if (empty($street)) {
     return "Please enter a <b>street name</b><br/>";
@@ -152,11 +145,8 @@ function valStreet()
   }
 }
 
-function valNumber()
+function valNumber($number)
 {
-  // get input
-  $number = $_POST['number'];
-
   // validate input
   if (empty($number)) {
     return "Please enter a <b>street number</b><br/>";
@@ -172,11 +162,8 @@ function valNumber()
   }
 }
 
-function valCity()
+function valCity($city)
 {
-  // get input
-  $city = $_POST['city'];
-
   // validate input
   if (empty($city)) {
     return "Please enter a <b>street city</b><br/>";
@@ -192,11 +179,8 @@ function valCity()
   }
 }
 
-function valZip()
+function valZip($zip)
 {
-  // get input
-  $zip = $_POST['zip'];
-
   // validate input
   if (empty($zip)) {
     return "Please enter a <b>zip code</b><br/>";
@@ -211,8 +195,6 @@ function valZip()
     }
   }
 }
-
-
 
 
 //
