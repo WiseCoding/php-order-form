@@ -5,6 +5,71 @@ declare(strict_types=1);
 //we are going to use session variables so we need to enable sessions
 session_start();
 
+
+
+//whatIsHappening();
+
+// PRODUCTS
+$food = [
+  ['name' => 'Club Ham', 'price' => 3.20],
+  ['name' => 'Club Cheese', 'price' => 3],
+  ['name' => 'Club Cheese & Ham', 'price' => 4],
+  ['name' => 'Club Chicken', 'price' => 4],
+  ['name' => 'Club Salmon', 'price' => 5]
+];
+$drinks = [
+  ['name' => 'Cola', 'price' => 2],
+  ['name' => 'Fanta', 'price' => 2],
+  ['name' => 'Sprite', 'price' => 2],
+  ['name' => 'Ice-tea', 'price' => 3],
+];
+
+// SET GLOBALS
+$products = $food;
+$form_email = '';
+$form_street = '';
+$form_number = '';
+$form_city = '';
+$form_zip = '';
+$info = '';
+$alert = 'd-none';
+
+// SET LAST VALIDATED COOKIE VALUES
+$form_email = getCookie('email');
+$form_street = getCookie('street');
+$form_number = getCookie('number');
+$form_city = getCookie('city');
+$form_zip = getCookie('zip');
+
+// SET FOOD OR DRINKS BASED ON SELECTION
+if ($_GET) {
+  $products = setFood($_GET['food'], $food, $drinks);
+}
+
+// SET TOTAL SPENT COOKIE VALUE
+$totalValue = getCookie('total');
+
+// VALIDATE FORM DATA, SET COOKIES
+if ($_POST) {
+  $info = valForm();
+
+  // SHOW INFO / ALERTS
+  if ($info === '') {
+    $alert = 'alert-success';
+
+    // DELIVERY TIME
+    ((int)$_POST['delivery'] === 1) ? $delivery = '45 Minutes' : $delivery = '2 Hours';
+
+    // SUCCESS MESSAGE
+    $info = '🚚 The order is on the way!  <br/>⏱ Arrives in <b>±' . $delivery . '</b>';
+  } else {
+    $alert = 'alert-danger';
+  }
+}
+
+
+
+// FUNCTIONS
 function whatIsHappening()
 {
   echo '<h2>$_GET</h2>';
@@ -17,58 +82,14 @@ function whatIsHappening()
   var_dump($_SESSION);
 }
 
-
-
-$totalValue = 0;
-
-
-
-// ================ //
-// MATTIAS PHP CODE //
-// ================ //
-whatIsHappening();
-
-
-// SET GLOBALS
-$alert = 'd-none';
-$info = '';
-$form_email = '';
-$form_street = '';
-$form_number = '';
-$form_city = '';
-$form_zip = '';
-
-// SET LAST VALIDATED COOKIE VALUES
-$form_email = getCookie('email');
-$form_street = getCookie('street');
-$form_number = getCookie('number');
-$form_city = getCookie('city');
-$form_zip = getCookie('zip');
-
-// SET FOOD OR DRINKS BASED ON SELECTION
-$products = setFood($_GET['food']);
-
-// VALIDATE FORM DATA, SET COOKIES
-if ($_POST) {
-  $info = valForm();
-  // SHOW ALERTS /
-  if ($info === '') {
-    $alert = 'alert-success';
-    $info = 'The food is on the way! 🚚';
-  } else {
-    $alert = 'alert-danger';
-  }
-}
-
-
-
-// FUNCTIONS
-function getPost($type)
+function setFood($choice, $food, $drinks)
 {
-  if (isset($_POST[$type])) {
-    return $_POST[$type];
+  $choice = (int)$choice;
+
+  if ($choice === 1) {
+    return $food;
   } else {
-    return '';
+    return $drinks;
   }
 }
 
@@ -79,18 +100,6 @@ function getCookie($type)
   } else {
     return '';
   }
-}
-
-function valForm()
-{
-  $val_email = valEmail($_POST['email']);
-  $val_street = valStreet($_POST['street']);
-  $val_number = valNumber($_POST['number']);
-  $val_city = valCity($_POST['city']);
-  $val_zip = valZip($_POST['zip']);
-
-  // GENERATE ALERTS
-  return $val_email . $val_street . $val_number . $val_city . $val_zip;
 }
 
 function valEmail($email)
@@ -177,34 +186,30 @@ function valZip($zip)
   }
 }
 
-function setFood($choice)
+function valForm()
 {
+  $val_email = valEmail($_POST['email']);
+  $val_street = valStreet($_POST['street']);
+  $val_number = valNumber($_POST['number']);
+  $val_city = valCity($_POST['city']);
+  $val_zip = valZip($_POST['zip']);
 
-  $choice = (int)$choice;
-
-  $food = [
-    ['name' => 'Club Ham', 'price' => 3.20],
-    ['name' => 'Club Cheese', 'price' => 3],
-    ['name' => 'Club Cheese & Ham', 'price' => 4],
-    ['name' => 'Club Chicken', 'price' => 4],
-    ['name' => 'Club Salmon', 'price' => 5]
-  ];
-
-  $drinks = [
-    ['name' => 'Cola', 'price' => 2],
-    ['name' => 'Fanta', 'price' => 2],
-    ['name' => 'Sprite', 'price' => 2],
-    ['name' => 'Ice-tea', 'price' => 3],
-  ];
-
-  if ($choice === 1) {
-    return $food;
-  } else {
-    return $drinks;
-  }
+  // GENERATE ALERTS
+  return $val_email . $val_street . $val_number . $val_city . $val_zip;
 }
 
+function addToTotal($amount)
+{
+  // get cookie value
+  $spent = getCookie('total');
+  // add
+  $total = (int)$spent + (int)$amount;
+  $total = strval($total);
+  // set cookie
+  setcookie('total', $total, time() + (86400 * 365));
+}
 
+// TODO: ADD TO TOTAL FUNTION IMPLEMENT IN ORDER CALCULATION
 //
 
 require 'form-view.php';
