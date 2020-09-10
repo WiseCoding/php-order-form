@@ -1,12 +1,7 @@
 <?php
 //this line makes PHP behave in a more strict way
 declare(strict_types=1);
-
-//we are going to use session variables so we need to enable sessions
 session_start();
-
-
-
 //whatIsHappening();
 
 // PRODUCTS
@@ -24,7 +19,7 @@ $drinks = [
   ['name' => 'Ice-tea', 'price' => 3],
 ];
 
-// SET GLOBALS
+// SET START GLOBALS
 $products = $food;
 $form_email = '';
 $form_street = '';
@@ -41,7 +36,7 @@ $form_number = getCookie('number');
 $form_city = getCookie('city');
 $form_zip = getCookie('zip');
 
-// SET FOOD OR DRINKS BASED ON SELECTION
+// TOGGLE FOOD OR DRINKS BASED ON SELECTION
 if ($_GET) {
   $products = setFood($_GET['food'], $food, $drinks);
 }
@@ -49,27 +44,21 @@ if ($_GET) {
 // SET TOTAL SPENT COOKIE VALUE
 $totalValue = getCookie('total');
 
-// VALIDATE FORM DATA, SET COOKIES
+// VALIDATE FORM DATA, SET COOKIES, SHOW INFO/ALERTS
 if ($_POST) {
-  $info = valForm();
+  // VALIDATE FORM INPUT / SET COOKIES
+  $valid = valForm();
 
-  // SHOW INFO / ALERTS
-  if ($info === '') {
-    $alert = 'alert-success';
-
-    // DELIVERY TIME
-    ((int)$_POST['delivery'] === 1) ? $delivery = '45 Minutes' : $delivery = '2 Hours';
-
-    // SUCCESS MESSAGE
-    $info = '🚚 The order is on the way!  <br/>⏱ Arrives in <b>±' . $delivery . '</b>';
-  } else {
-    $alert = 'alert-danger';
-  }
+  // SHOW INFO DIV + INFO
+  $alert = showDiv($valid);
+  $info = completeOrder($valid);
 }
 
 
 
-// FUNCTIONS
+// ========= //
+// FUNCTIONS //
+// ========= //
 function whatIsHappening()
 {
   echo '<h2>$_GET</h2>';
@@ -176,7 +165,7 @@ function valZip($zip)
     return "Please enter a <b>zip code</b><br/>";
   } else {
     // regex: this is the regex for belgium zip codes
-    if (preg_match("/\d{4}/", $zip)) {
+    if (preg_match("/^\d{4}$/", $zip)) {
       // set cookie
       setcookie('zip', $zip, time() + (86400 * 30));
       return;
@@ -198,6 +187,86 @@ function valForm()
   return $val_email . $val_street . $val_number . $val_city . $val_zip;
 }
 
+function showDiv($info)
+{
+  if ($info === '') {
+    return 'alert-success';
+  } else {
+    return 'alert-danger';
+  }
+}
+
+function completeOrder($info)
+{
+  if ($info === '') {
+    // CALCULATE TOTAL ITEMS PURCHASED
+    $total = calcTotal($_POST['products']);
+    // ADD TO TOTAL COOKIE
+    addToTotal($total);
+
+    // SEND CONFIRMATION MAIL
+    $email = sendEmail($total);
+
+    // DELIVERY TIME
+    $normal = '🚚 Arriving in <b>±2 Hours</b>.<br/> 💸 Ordered for €<b>' . $total . '</b>.<br/> ' . $email;
+    $express = '🏎 Arriving in <b>±45 Minutes</b>.<br/> 💸 Ordered for €<b>' . ($total + 5) . '</b>.<br/> ' . $email;
+
+    ((int)$_POST['delivery'] === 1) ? $delivery = $express : $delivery = $normal;
+    // SUCCESS MESSAGE
+    return '📦 Delivering to <b>' . $_POST['street'] . ' ' . $_POST['number'] . '</b>!  <br/>' . $delivery;
+  } else {
+    return $info;
+  }
+}
+
+function sendEmail($total)
+{
+  // RESTAURANT OWNER
+  $owner = 'wisecodr@gmail.com';
+
+  // CUSTOMER
+  $customer = $_POST['email'];
+  $street = $_POST['street'];
+  $number = $_POST['number'];
+  $city = $_POST['city'];
+  $zip = $_POST['zip'];
+
+  // ORDER
+  $deliveryType = ((int)$_POST['delivery'] === 0) ? 'normal delivery' : 'express delivery';
+  $deliveryTime = ((int)$_POST['delivery'] === 0) ? '2 hours' : '45 minutes';
+  $orderTotal = $total;
+
+  // MESSAGES
+  $customerMsg =
+    "Thank you for your order with the PHP restaurant!\n
+    The order will be delivered to " . $street . " " . $number . " in " . $zip . " " . $city . ".\n
+    We will deliver the order in " . $deliveryTime . " by " . $deliveryType . ".\n
+    The total cost of your order is € " . $orderTotal . ".";
+  //TODO: ADD ORDER ITEMS SUMMARY MAYBE?
+
+  $ownerMsg = "Send food to " . $street . " " . $number . " FAST!!!!!";
+  //TODO: CONSTRUCT OWNER MESSAGE
+
+
+  //  $msg = wordwrap($msg, 70);
+
+  // SEND MAILS
+  mail($customer, 'Thank you for your order at "the PHP"', $customerMsg);
+  mail($owner, 'New order received from' . $customer, $ownerMsg);
+
+  return '📩 Email sent to <b>' . $customer . '</b>.';
+}
+
+function calcTotal($items)
+{
+  $spent = 0;
+  // CALCULATE TOTAL
+  foreach ($items as $item) {
+    $spent += $item;
+  }
+  return number_format($spent, 2);
+}
+
 function addToTotal($amount)
 {
   // get cookie value
@@ -209,7 +278,7 @@ function addToTotal($amount)
   setcookie('total', $total, time() + (86400 * 365));
 }
 
-// TODO: ADD TO TOTAL FUNTION IMPLEMENT IN ORDER CALCULATION
+
 //
 
 require 'form-view.php';

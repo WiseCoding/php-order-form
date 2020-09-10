@@ -11,14 +11,14 @@
 
 <body>
   <div class="container">
-    <h1>Order food in restaurant "the Personal Ham Processors"</h1>
-    <nav>
-      <ul class="nav">
+    <nav class="m-4 row">
+      <h1 class="p-2 mx-auto">Order at "the PHP"</h1>
+      <ul class="mx-auto nav">
         <li class="nav-item">
-          <a class="nav-link active" href="?food=1">Order food</a>
+          <a class="nav-link active" href="?food=1">Order food 🍔</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="?food=0">Order drinks</a>
+          <a class="nav-link" href="?food=0">Order drinks 🍾</a>
         </li>
       </ul>
     </nav>
@@ -28,8 +28,8 @@
     <form method="post">
 
       <!-- EMAIL -->
-      <div class="form-row">
-        <div class="form-group col-md-6">
+      <div class="row">
+        <div class="mx-auto col-md-6">
           <label for="email">E-mail:</label>
           <input type="text" id="email" name="email" class="form-control" placeholder="<?= $form_email ?>" required>
         </div>
@@ -62,40 +62,42 @@
       </fieldset>
 
       <!-- PRODUCTS -->
+
       <fieldset>
         <legend>Products</legend>
         <?php foreach ($products as $i => $product) : ?>
           <label>
-            <input type="checkbox" value="1" name="products[<?php echo $i ?>]" /> <?php echo $product['name'] ?> -
+            <input type="checkbox" value="<?= $product['price'] ?>" name="products[<?php echo $i ?>]" /> <?php echo $product['name'] ?> -
             &euro; <?php echo number_format($product['price'], 2) ?></label><br />
         <?php endforeach; ?>
       </fieldset>
 
+
       <!-- DELIVERY -->
-      <fieldset>
+      <fieldset class="my-2">
         <legend>Delivery</legend>
         <input type="radio" value="0" name="delivery" checked required />
-        <label for="normal">Normal (2h)</label><br />
+        <label for="normal">🚚 Normal (2h) Free</label><br />
         <input type="radio" value="1" name="delivery" required />
-        <label for="express">Express (45min)</label>
+        <label for="express">🏎 Express (45min) +€5</label>
       </fieldset>
 
 
-
-      <button type="submit" class="btn btn-primary">Order!</button>
+      <!-- SUBMIT -->
+      <div class="m-4 row">
+        <button type="submit" class="mx-auto btn btn-primary">Order!</button>
+      </div>
     </form>
 
     <!-- HISTORY -->
-    <footer>
-      You already ordered <strong>&euro; <?php echo $totalValue ?></strong> in food and drinks.
+    <footer class="m-4 row">
+      <div class='mx-auto alert alert-info' role='alert'>
+        Thank you for spending a total of
+        <strong>&euro; <?php echo $totalValue ?></strong>
+        in our web shop 💝 <br />
+      </div>
     </footer>
   </div>
-
-  <style>
-    footer {
-      text-align: center;
-    }
-  </style>
 </body>
 
 </html>
