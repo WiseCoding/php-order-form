@@ -17,21 +17,7 @@ function whatIsHappening()
   var_dump($_SESSION);
 }
 
-//your products with their price.
-$products = [
-  ['name' => 'Club Ham', 'price' => 3.20],
-  ['name' => 'Club Cheese', 'price' => 3],
-  ['name' => 'Club Cheese & Ham', 'price' => 4],
-  ['name' => 'Club Chicken', 'price' => 4],
-  ['name' => 'Club Salmon', 'price' => 5]
-];
 
-$products = [
-  ['name' => 'Cola', 'price' => 2],
-  ['name' => 'Fanta', 'price' => 2],
-  ['name' => 'Sprite', 'price' => 2],
-  ['name' => 'Ice-tea', 'price' => 3],
-];
 
 $totalValue = 0;
 
@@ -40,43 +26,38 @@ $totalValue = 0;
 // ================ //
 // MATTIAS PHP CODE //
 // ================ //
-//whatIsHappening();
+whatIsHappening();
 
 
 // SET GLOBALS
 $alert = 'd-none';
-$errors = '';
+$info = '';
 $form_email = '';
 $form_street = '';
 $form_number = '';
 $form_city = '';
 $form_zip = '';
-$form_placeholder_email = '';
-$form_placeholder_street = '';
-$form_placeholder_number = '';
-$form_placeholder_city = '';
-$form_placeholder_zip = '';
-
-// SET LAST SUBMITTED POST VALUES
-$form_email = getPost('email');
-$form_street = getPost('street');
-$form_number = getPost('number');
-$form_city = getPost('city');
-$form_zip = getPost('zip');
 
 // SET LAST VALIDATED COOKIE VALUES
-$form_placeholder_email = getCookie('email');
-$form_placeholder_street = getCookie('street');
-$form_placeholder_number = getCookie('number');
-$form_placeholder_city = getCookie('city');
-$form_placeholder_zip = getCookie('zip');
+$form_email = getCookie('email');
+$form_street = getCookie('street');
+$form_number = getCookie('number');
+$form_city = getCookie('city');
+$form_zip = getCookie('zip');
 
+// SET FOOD OR DRINKS BASED ON SELECTION
+$products = setFood($_GET['food']);
 
 // VALIDATE FORM DATA, SET COOKIES
 if ($_POST) {
-  $errors = valForm();
-  // HIDE ALERTS DIV WHEN NO ALERTS
-  ($errors === '') ? $alert = 'd-none' : $alert = '';
+  $info = valForm();
+  // SHOW ALERTS /
+  if ($info === '') {
+    $alert = 'alert-success';
+    $info = 'The food is on the way! 🚚';
+  } else {
+    $alert = 'alert-danger';
+  }
 }
 
 
@@ -193,6 +174,33 @@ function valZip($zip)
     } else {
       return "<b>$zip</b> is not a valid zip code<br/>";
     }
+  }
+}
+
+function setFood($choice)
+{
+
+  $choice = (int)$choice;
+
+  $food = [
+    ['name' => 'Club Ham', 'price' => 3.20],
+    ['name' => 'Club Cheese', 'price' => 3],
+    ['name' => 'Club Cheese & Ham', 'price' => 4],
+    ['name' => 'Club Chicken', 'price' => 4],
+    ['name' => 'Club Salmon', 'price' => 5]
+  ];
+
+  $drinks = [
+    ['name' => 'Cola', 'price' => 2],
+    ['name' => 'Fanta', 'price' => 2],
+    ['name' => 'Sprite', 'price' => 2],
+    ['name' => 'Ice-tea', 'price' => 3],
+  ];
+
+  if ($choice === 1) {
+    return $food;
+  } else {
+    return $drinks;
   }
 }
 
