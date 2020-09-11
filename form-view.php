@@ -64,7 +64,6 @@
       </fieldset>
 
       <!-- PRODUCTS -->
-
       <fieldset>
         <legend>Products</legend>
         <?php foreach ($products as $i => $product) : ?>
@@ -73,7 +72,6 @@
             &euro; <?php echo number_format($product['price'], 2) ?></label><br />
         <?php endforeach; ?>
       </fieldset>
-
 
       <!-- DELIVERY -->
       <fieldset class="my-2">

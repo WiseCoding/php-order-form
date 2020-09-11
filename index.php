@@ -1,8 +1,15 @@
 <?php
-//this line makes PHP behave in a more strict way
+
 declare(strict_types=1);
+
+// DEPENDENCIES
+require 'mail.php';
+// COMPOSER AUTOLOADER
+require 'vendor/autoload.php';
+
+// START SESSION
 session_start();
-//whatIsHappening();
+
 
 // PRODUCTS
 $food = [
@@ -203,17 +210,17 @@ function completeOrder($info)
     $total = calcTotal($_POST['products']);
     // ADD TO TOTAL COOKIE
     addToTotal($total);
-
+    // ADD EXPRESS COSTS
+    $total = ((int)$_POST['delivery'] === 1) ? $total + 5 : $total;
     // SEND CONFIRMATION MAIL
     $email = sendEmail($total);
-
     // DELIVERY TIME
-    $normal = '🚚 Arriving in <b>±2 Hours</b>.<br/> 💸 Ordered for €<b>' . $total . '</b>.<br/> ' . $email;
-    $express = '🏎 Arriving in <b>±45 Minutes</b>.<br/> 💸 Ordered for €<b>' . ($total + 5) . '</b>.<br/> ' . $email;
+    $normal = "🚚 Arriving in <b>±2 Hours</b>.<br/> 💰 Ordered for €<b>$total</b>.<br/>$email";
+    $express = "🏎 Arriving in <b>±45 Minutes</b>.<br/> 💰 Ordered for €<b>$total</b>.<br/>$email";
 
     ((int)$_POST['delivery'] === 1) ? $delivery = $express : $delivery = $normal;
     // SUCCESS MESSAGE
-    return '📦 Delivering to <b>' . $_POST['street'] . ' ' . $_POST['number'] . '</b>!  <br/>' . $delivery;
+    return "📦 Delivering to <b>" . $_POST['street'] . " " . $_POST['number'] . "</b>!<br/>$delivery";
   } else {
     return $info;
   }
@@ -240,51 +247,11 @@ function addToTotal($amount)
   setcookie('total', $total, time() + (86400 * 365));
 }
 
-function sendEmail($total)
-{
-  // RESTAURANT OWNER
-  $owner = 'wisecodr@gmail.com';
-
-  // CUSTOMER
-  $customer = $_POST['email'];
-  $street = $_POST['street'];
-  $number = $_POST['number'];
-  $city = $_POST['city'];
-  $zip = $_POST['zip'];
-
-  // ORDER
-  $deliveryType = ((int)$_POST['delivery'] === 0) ? 'normal delivery' : 'express delivery';
-  $deliveryTime = ((int)$_POST['delivery'] === 0) ? '2 hours' : '45 minutes';
-  $orderTotal = $total;
-
-  // MESSAGES
-  $customerMsg =
-    "Thank you for your order with the PHP restaurant!\n
-    The order will be delivered to " . $street . " " . $number . " in " . $zip . " " . $city . ".\n
-    We will deliver the order in " . $deliveryTime . " by " . $deliveryType . ".\n
-    The total cost of your order is € " . $orderTotal . ".";
-  //TODO: ADD ORDER ITEMS SUMMARY MAYBE?
-
-  $ownerMsg = "Send food to " . $street . " " . $number . " FAST!!!!!";
-  //TODO: CONSTRUCT OWNER MESSAGE
 
 
-  //  $msg = wordwrap($msg, 70);
-
-  // SEND MAILS
-  $mail = mail($customer, 'Thank you for your order at "the PHP"', $customerMsg);
-  mail($owner, 'New order received from' . $customer, $ownerMsg);
-
-  if ($mail === true) {
-    return '📩 Email sent to <b>' . $customer . '</b>.';
-  } else {
-    return '❌ Email failed to <b>' . $customer . '</b>.';
-  }
-}
-
+// TESTING
+// whatIsHappening();
 
 //
 
 require 'form-view.php';
-
-// TODO: INSTALL PHP MY ADMIN
