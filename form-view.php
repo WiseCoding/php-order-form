@@ -11,8 +11,10 @@
 
 <body>
   <div class="container">
+    <div class="mt-4 row">
+      <h1 class="mx-auto ">Order at "the PHP"</h1>
+    </div>
     <nav class="m-4 row">
-      <h1 class="p-2 mx-auto">Order at "the PHP"</h1>
       <ul class="mx-auto nav">
         <li class="nav-item">
           <a class="nav-link active" href="?food=1">Order food 🍔</a>

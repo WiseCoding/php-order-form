@@ -130,7 +130,7 @@ function valNumber($number)
   if (empty($number)) {
     return "Please enter a <b>street number</b><br/>";
   } else {
-    // regex: string has to start with a number and can have one letter uppr/lowr in the end
+    // regex: string has to start with a number and can have one letter upper/lower in the end
     if (preg_match("/^\d+[a-zA-Z]?$/", $number)) {
       // set cookie
       setcookie('number', $number, time() + (86400 * 30));
@@ -177,11 +177,11 @@ function valZip($zip)
 
 function valForm()
 {
-  $val_email = valEmail($_POST['email']);
-  $val_street = valStreet($_POST['street']);
-  $val_number = valNumber($_POST['number']);
-  $val_city = valCity($_POST['city']);
-  $val_zip = valZip($_POST['zip']);
+  $val_email = valEmail(htmlspecialchars($_POST['email']));
+  $val_street = valStreet(htmlspecialchars($_POST['street']));
+  $val_number = valNumber(htmlspecialchars($_POST['number']));
+  $val_city = valCity(htmlspecialchars($_POST['city']));
+  $val_zip = valZip(htmlspecialchars($_POST['zip']));
 
   // GENERATE ALERTS
   return $val_email . $val_street . $val_number . $val_city . $val_zip;
@@ -219,6 +219,27 @@ function completeOrder($info)
   }
 }
 
+function calcTotal($items)
+{
+  $spent = 0;
+  // CALCULATE TOTAL
+  foreach ($items as $item) {
+    $spent += $item;
+  }
+  return number_format($spent, 2);
+}
+
+function addToTotal($amount)
+{
+  // get cookie value
+  $spent = getCookie('total');
+  // add
+  $total = (int)$spent + (int)$amount;
+  $total = strval($total);
+  // set cookie
+  setcookie('total', $total, time() + (86400 * 365));
+}
+
 function sendEmail($total)
 {
   // RESTAURANT OWNER
@@ -251,34 +272,19 @@ function sendEmail($total)
   //  $msg = wordwrap($msg, 70);
 
   // SEND MAILS
-  mail($customer, 'Thank you for your order at "the PHP"', $customerMsg);
+  $mail = mail($customer, 'Thank you for your order at "the PHP"', $customerMsg);
   mail($owner, 'New order received from' . $customer, $ownerMsg);
 
-  return '📩 Email sent to <b>' . $customer . '</b>.';
-}
-
-function calcTotal($items)
-{
-  $spent = 0;
-  // CALCULATE TOTAL
-  foreach ($items as $item) {
-    $spent += $item;
+  if ($mail === true) {
+    return '📩 Email sent to <b>' . $customer . '</b>.';
+  } else {
+    return '❌ Email failed to <b>' . $customer . '</b>.';
   }
-  return number_format($spent, 2);
-}
-
-function addToTotal($amount)
-{
-  // get cookie value
-  $spent = getCookie('total');
-  // add
-  $total = (int)$spent + (int)$amount;
-  $total = strval($total);
-  // set cookie
-  setcookie('total', $total, time() + (86400 * 365));
 }
 
 
 //
 
 require 'form-view.php';
+
+// TODO: INSTALL PHP MY ADMIN
