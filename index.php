@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 // DEPENDENCIES
 require 'mail.php';
-// COMPOSER AUTOLOADER
-require 'vendor/autoload.php';
 
 // START SESSION
 session_start();
@@ -217,7 +215,6 @@ function completeOrder($info)
     // DELIVERY TIME
     $normal = "🚚 Arriving in <b>±2 Hours</b>.<br/> 💰 Ordered for €<b>$total</b>.<br/>$email";
     $express = "🏎 Arriving in <b>±45 Minutes</b>.<br/> 💰 Ordered for €<b>$total</b>.<br/>$email";
-
     ((int)$_POST['delivery'] === 1) ? $delivery = $express : $delivery = $normal;
     // SUCCESS MESSAGE
     return "📦 Delivering to <b>" . $_POST['street'] . " " . $_POST['number'] . "</b>!<br/>$delivery";
@@ -248,9 +245,8 @@ function addToTotal($amount)
 }
 
 
-
 // TESTING
-// whatIsHappening();
+//whatIsHappening();
 
 //
 
