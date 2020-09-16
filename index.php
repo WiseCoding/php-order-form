@@ -4,25 +4,14 @@ declare(strict_types=1);
 
 // DEPENDENCIES
 require 'mail.php';
+require 'products.php';
 
 // START SESSION
 session_start();
 
-
-// PRODUCTS
-$food = [
-  ['name' => 'Club Ham', 'price' => 3.20],
-  ['name' => 'Club Cheese', 'price' => 3],
-  ['name' => 'Club Cheese & Ham', 'price' => 4],
-  ['name' => 'Club Chicken', 'price' => 4],
-  ['name' => 'Club Salmon', 'price' => 5]
-];
-$drinks = [
-  ['name' => 'Cola', 'price' => 2],
-  ['name' => 'Fanta', 'price' => 2],
-  ['name' => 'Sprite', 'price' => 2],
-  ['name' => 'Ice-tea', 'price' => 3],
-];
+// TESTING
+whatIsHappening();
+//
 
 // SET START GLOBALS
 $products = $food;
@@ -52,11 +41,11 @@ $totalValue = getCookie('total');
 // VALIDATE FORM DATA, SET COOKIES, SHOW INFO/ALERTS
 if ($_POST) {
   // VALIDATE FORM INPUT / SET COOKIES
-  $valid = valForm();
+  $info = valForm();
 
   // SHOW INFO DIV + INFO
-  $alert = showDiv($valid);
-  $info = completeOrder($valid);
+  $alert = showDiv($info);
+  $info = completeOrder($info);
 }
 
 
@@ -78,9 +67,7 @@ function whatIsHappening()
 
 function setFood($choice, $food, $drinks)
 {
-  $choice = (int)$choice;
-
-  if ($choice === 1) {
+  if ((int)$choice === 1) {
     return $food;
   } else {
     return $drinks;
@@ -180,6 +167,15 @@ function valZip($zip)
   }
 }
 
+function valProducts()
+{
+  if (!isset($_POST['products'])) {
+    return "Please select some <b>products</b><br/>";
+  } else {
+    return;
+  }
+}
+
 function valForm()
 {
   $val_email = valEmail(htmlspecialchars($_POST['email']));
@@ -187,9 +183,10 @@ function valForm()
   $val_number = valNumber(htmlspecialchars($_POST['number']));
   $val_city = valCity(htmlspecialchars($_POST['city']));
   $val_zip = valZip(htmlspecialchars($_POST['zip']));
+  $val_products = valProducts();
 
   // GENERATE ALERTS
-  return $val_email . $val_street . $val_number . $val_city . $val_zip;
+  return $val_email . $val_street . $val_number . $val_city . $val_zip . $val_products;
 }
 
 function showDiv($info)
@@ -244,10 +241,5 @@ function addToTotal($amount)
   setcookie('total', $total, time() + (86400 * 365));
 }
 
-
-// TESTING
-//whatIsHappening();
-
 //
-
 require 'form-view.php';
